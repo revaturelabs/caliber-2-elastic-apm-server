@@ -1,0 +1,30 @@
+version: 0.2
+ 
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      - echo Building Catagory Service 
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --no-include-email --region $AWS_REGION)
+      - BUILD_ID=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...          
+      - docker build -t $ECR_REPO_NAME:$BUILD_ID --build-arg ES_HOSTS=$ES_HOSTS --build-arg APM_HOST=$APM_HOST --build-arg ALLOWED_ORIGINS=$ALLOWED_ORIGINS --build-arg KIBANA_HOST=$KIBANA_HOST .
+      - docker tag $ECR_REPO_NAME:$BUILD_ID $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$BUILD_ID
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$BUILD_ID
+      - echo Writing image definitions file...
+      - printf '[{"name":"%s","imageUri":"%s"}]' $SERVICE_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$BUILD_ID > imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json
+    - 'Dockerfile'
+    - 'apm-server.yml'
