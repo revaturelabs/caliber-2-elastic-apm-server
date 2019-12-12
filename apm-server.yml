@@ -8,6 +8,5 @@ apm-server:
     host: '${KIBANA_HOST}'
 output.elasticsearch:
   hosts: '${ES_HOSTS}'
-  rum:
-    enabled: true
+  path: /
   
