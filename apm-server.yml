@@ -7,5 +7,6 @@ apm-server:
     enabled: true
     host: '${KIBANA_HOST}'
 output.elasticsearch:
-  proxy_url: '${ES_HOSTS}'
+  hosts: '${ES_HOSTS}'
+  protocol: 'https'
   
