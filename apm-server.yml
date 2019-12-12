@@ -7,6 +7,5 @@ apm-server:
     enabled: true
     host: '${KIBANA_HOST}'
 output.elasticsearch:
-  hosts: '${ES_HOSTS}'
-  path: /
+  proxy_url: '${ES_HOSTS}'
   
